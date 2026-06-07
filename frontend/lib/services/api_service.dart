@@ -3,10 +3,10 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // For web testing (Chrome)
-  static const String baseUrl = 'http://localhost:8000/api/quiz';
+  static const String baseUrl = 'http://100.64.219.154:8000/api/quiz';
 
   // For Android emulator, use: 'http://10.0.2.2:8000/api/quiz'
-  // For physical device, use your computer's IP: 'http://192.168.1.XXX:8000/api/quiz'
+  // For physical device, use your computer's IP: 'http://192.168.42.157:8000/api/quiz'
 
   // Start a new quiz
   static Future<Map<String, dynamic>> startQuiz(String category) async {
@@ -37,6 +37,22 @@ class ApiService {
     } catch (e) {
       print('Error starting quiz: $e');
       throw Exception('Error starting quiz: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getDashboardStats() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/dashboard-stats/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load dashboard stats');
     }
   }
 
@@ -160,6 +176,59 @@ class ApiService {
       );
     } catch (e) {
       print('Failed to stop camera monitoring: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> login(
+    String identifier,
+    String password,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/login/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({'identifier': identifier, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(json.decode(response.body)['error']);
+      }
+    } catch (e) {
+      throw Exception('Login failed: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> register(
+    String username,
+    String email,
+    String password,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/register/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'username': username,
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        throw Exception(json.decode(response.body)['error']);
+      }
+    } catch (e) {
+      throw Exception('Register failed: $e');
     }
   }
 }

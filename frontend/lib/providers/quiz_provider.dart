@@ -102,11 +102,10 @@ class QuizProvider with ChangeNotifier {
 
         // Update score and difficulty
         totalScore = response['total_score'];
-        currentDifficulty = response['current_difficulty'];
+        currentDifficulty = response['current_difficulty'] ?? currentDifficulty;
 
         // Check if quiz is complete
         if (response['next_question'] == null) {
-          // Quiz completed - stop monitoring
           await stopMonitoring();
           currentQuestion = null;
         } else {
@@ -128,41 +127,31 @@ class QuizProvider with ChangeNotifier {
   }
 
   Future<void> _startMonitoring() async {
-    if (quizSessionId == null) return;
-
     try {
       _monitoringService = OpenCVMonitoringService();
 
       // Set up callbacks
       _monitoringService!.onWarning = (String warning) {
         _lastWarning = warning;
-        _isCheatingDetected = false;
         notifyListeners();
-        print('Quiz OpenCV Warning: $warning');
       };
 
       _monitoringService!.onForceQuit = () {
         _isCheatingDetected = true;
+        currentQuestion = null;
+        stopMonitoring();
         notifyListeners();
-        print('Quiz OpenCV: Force quit triggered');
       };
 
       _monitoringService!.onStatusUpdate = (String status) {
         _monitoringStatus = status;
         notifyListeners();
-        print('Quiz OpenCV Status: $status');
       };
 
       // Start monitoring
-      bool success = await _monitoringService!.startMonitoring(quizSessionId!);
-      _isMonitoring = success;
+      bool started = await _monitoringService!.startMonitoring(quizSessionId!);
+      _isMonitoring = started;
       notifyListeners();
-
-      if (success) {
-        print('Quiz OpenCV: Monitoring started successfully');
-      } else {
-        print('Quiz OpenCV: Failed to start monitoring');
-      }
     } catch (e) {
       print('Quiz OpenCV Error: $e');
       _isMonitoring = false;
@@ -170,13 +159,14 @@ class QuizProvider with ChangeNotifier {
     }
   }
 
-  Future<void> stopMonitoring() async {
-    if (_monitoringService != null && quizSessionId != null) {
-      await _monitoringService!.stopMonitoring(quizSessionId!);
+  Future<void> stopMonitoring([int? quizSessionId]) async {
+    try {
+      _monitoringService?.stopMonitoring();
       _isMonitoring = false;
-      _monitoringStatus = null;
+      _monitoringStatus = 'Monitoring stopped';
       notifyListeners();
-      print('Quiz OpenCV: Monitoring stopped');
+    } catch (e) {
+      print('Error stopping monitoring: $e');
     }
   }
 
@@ -193,17 +183,19 @@ class QuizProvider with ChangeNotifier {
     _isCheatingDetected = false;
     _lastWarning = null;
     _monitoringStatus = null;
-
-    // Stop monitoring
     stopMonitoring();
 
+    notifyListeners();
+  }
+
+  void clearError() {
+    error = null;
     notifyListeners();
   }
 
   @override
   void dispose() {
     stopMonitoring();
-    _monitoringService?.dispose();
     super.dispose();
   }
 }

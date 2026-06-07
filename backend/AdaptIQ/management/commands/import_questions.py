@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+import html
 from django.core.management.base import BaseCommand
 from AdaptIQ.models import Question
 
@@ -100,9 +101,16 @@ class Command(BaseCommand):
         
         for question_data in questions:
             try:
+                decoded_question_text = html.unescape(question_data['question']).strip()
+                decoded_correct_answer = html.unescape(question_data['correct_answer']).strip()
+                decoded_incorrect_answers = [
+                    html.unescape(answer).strip()
+                    for answer in question_data['incorrect_answers']
+                ]
+
                 # Check if question already exists
                 existing_question = Question.objects.filter(
-                    question_text=question_data['question']
+                    question_text=decoded_question_text
                 ).first()
                 
                 if existing_question:
@@ -110,11 +118,11 @@ class Command(BaseCommand):
                 
                 # Create new question
                 question = Question.objects.create(
-                    question_text=question_data['question'],
+                    question_text=decoded_question_text,
                     category=category,
                     difficulty=difficulty,
-                    correct_answer=question_data['correct_answer'],
-                    incorrect_answers=question_data['incorrect_answers'],
+                    correct_answer=decoded_correct_answer,
+                    incorrect_answers=decoded_incorrect_answers,
                     is_active=True
                 )
                 

@@ -9,7 +9,8 @@ class ResultsScreen extends StatelessWidget {
   final int totalQuestions;
   final List<Map<String, dynamic>> questionHistory;
 
-  ResultsScreen({
+  const ResultsScreen({
+    super.key,
     required this.category,
     required this.finalScore,
     required this.totalQuestions,
@@ -28,27 +29,18 @@ class ResultsScreen extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                // Header
                 _buildHeader(),
-                SizedBox(height: 30),
-
-                // Score Overview
+                const SizedBox(height: 24),
                 _buildScoreOverview(),
-                SizedBox(height: 30),
-
-                // Performance Analytics
+                const SizedBox(height: 24),
                 _buildPerformanceAnalytics(),
-                SizedBox(height: 30),
-
-                // AI Difficulty Progression
+                const SizedBox(height: 24),
                 _buildDifficultyProgression(),
-                SizedBox(height: 30),
-
-                // Action Buttons
+                const SizedBox(height: 24),
                 _buildActionButtons(context),
               ],
             ),
@@ -61,69 +53,64 @@ class ResultsScreen extends StatelessWidget {
   Widget _buildHeader() {
     return Column(
       children: [
-        Icon(Icons.emoji_events, size: 80, color: Colors.amber),
-        SizedBox(height: 20),
-        Text(
-          'Quiz Completed!',
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue[800],
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.amber.withOpacity(0.15),
+            shape: BoxShape.circle,
           ),
+          child: const Icon(Icons.emoji_events, size: 60, color: Colors.amber),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 20),
+        const Text(
+          'Quiz Completed 🎉',
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
         Text(
-          'Great job completing the $category quiz!',
-          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+          'Great job! Here’s your performance summary',
+          style: TextStyle(color: Colors.grey[600]),
+          textAlign: TextAlign.center,
         ),
       ],
     );
   }
 
   Widget _buildScoreOverview() {
-    double percentage = totalQuestions > 0
+    final double percentage = totalQuestions > 0
         ? (finalScore / (totalQuestions * 10)) * 100
         : 0;
 
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         children: [
           Text(
-            'Score Overview',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue[800],
-            ),
+            '${percentage.toStringAsFixed(0)}%',
+            style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 6),
+          Text(
+            _getPerformanceText(percentage),
+            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildScoreItem('Total Score', finalScore.toString(), Icons.star),
-              _buildScoreItem(
-                'Questions',
-                totalQuestions.toString(),
-                Icons.quiz,
-              ),
-              _buildScoreItem(
-                'Percentage',
-                '${percentage.toStringAsFixed(1)}%',
-                Icons.percent,
-              ),
+              _buildMiniStat('Score', finalScore.toString()),
+              _buildMiniStat('Questions', totalQuestions.toString()),
             ],
           ),
         ],
@@ -131,46 +118,47 @@ class ResultsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScoreItem(String label, String value, IconData icon) {
+  Widget _buildMiniStat(String label, String value) {
     return Column(
       children: [
-        Icon(icon, size: 40, color: Colors.blue),
-        SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue[800],
-          ),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        const SizedBox(height: 4),
+        Text(label, style: TextStyle(color: Colors.grey[600])),
       ],
     );
   }
 
+  String _getPerformanceText(double percentage) {
+    if (percentage >= 80) return 'Excellent Performance 🔥';
+    if (percentage >= 60) return 'Good Job 👍';
+    if (percentage >= 40) return 'Not Bad 🙂';
+    return 'Keep Practicing 💪';
+  }
+
   Widget _buildPerformanceAnalytics() {
-    int correctAnswers = questionHistory
+    final int correctAnswers = questionHistory
         .where((q) => q['is_correct'] == true)
         .length;
-    int incorrectAnswers = questionHistory
+    final int incorrectAnswers = questionHistory
         .where((q) => q['is_correct'] == false)
         .length;
-    double accuracy = totalQuestions > 0
+    final double accuracy = totalQuestions > 0
         ? (correctAnswers / totalQuestions) * 100
         : 0;
 
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -180,12 +168,12 @@ class ResultsScreen extends StatelessWidget {
           Text(
             'Performance Analytics',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.blue[800],
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
@@ -206,13 +194,13 @@ class ResultsScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Column(
               children: [
@@ -224,7 +212,7 @@ class ResultsScreen extends StatelessWidget {
                     color: Colors.grey[700],
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
                   '${accuracy.toStringAsFixed(1)}%',
                   style: TextStyle(
@@ -248,17 +236,17 @@ class ResultsScreen extends StatelessWidget {
     IconData icon,
   ) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 5),
-      padding: EdgeInsets.all(15),
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         children: [
           Icon(icon, size: 30, color: color),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             value,
             style: TextStyle(
@@ -275,16 +263,15 @@ class ResultsScreen extends StatelessWidget {
 
   Widget _buildDifficultyProgression() {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -294,12 +281,12 @@ class ResultsScreen extends StatelessWidget {
           Text(
             'AI Difficulty Progression',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.blue[800],
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           if (questionHistory.isEmpty)
             Text(
               'No questions answered yet',
@@ -308,8 +295,8 @@ class ResultsScreen extends StatelessWidget {
           else
             Column(
               children: questionHistory.asMap().entries.map((entry) {
-                int index = entry.key;
-                Map<String, dynamic> question = entry.value;
+                final int index = entry.key;
+                final Map<String, dynamic> question = entry.value;
                 return _buildQuestionTimeline(index + 1, question);
               }).toList(),
             ),
@@ -322,25 +309,27 @@ class ResultsScreen extends StatelessWidget {
     int questionNumber,
     Map<String, dynamic> question,
   ) {
-    Color difficultyColor = _getDifficultyColor(question['difficulty']);
-    Color resultColor = question['is_correct'] ? Colors.green : Colors.red;
-    IconData resultIcon = question['is_correct']
+    final Color difficultyColor = _getDifficultyColor(question['difficulty']);
+    final Color resultColor = question['is_correct']
+        ? Colors.green
+        : Colors.red;
+    final IconData resultIcon = question['is_correct']
         ? Icons.check_circle
         : Icons.cancel;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 15),
-      padding: EdgeInsets.all(15),
+      margin: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               color: difficultyColor,
               shape: BoxShape.circle,
@@ -348,43 +337,49 @@ class ResultsScreen extends StatelessWidget {
             child: Center(
               child: Text(
                 questionNumber.toString(),
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
-          SizedBox(width: 15),
+          const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Question $questionNumber',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 6),
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: difficultyColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         question['difficulty'].toUpperCase(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Icon(resultIcon, color: resultColor, size: 20),
-                    SizedBox(width: 5),
+                    const SizedBox(width: 5),
                     Text(
                       '+${question['points_earned']} pts',
                       style: TextStyle(
@@ -420,10 +415,9 @@ class ResultsScreen extends StatelessWidget {
       children: [
         SizedBox(
           width: double.infinity,
-          height: 50,
+          height: 52,
           child: ElevatedButton(
             onPressed: () {
-              // Reset quiz and start again
               Provider.of<QuizProvider>(context, listen: false).resetQuiz();
               Navigator.pushReplacement(
                 context,
@@ -436,30 +430,27 @@ class ResultsScreen extends StatelessWidget {
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: Text('Try Again', style: TextStyle(fontSize: 18)),
+            child: const Text('Play Again', style: TextStyle(fontSize: 16)),
           ),
         ),
-        SizedBox(height: 15),
+        const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
+          height: 52,
+          child: OutlinedButton(
             onPressed: () {
-              // Go back to home screen
               Provider.of<QuizProvider>(context, listen: false).resetQuiz();
               Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
+            style: OutlinedButton.styleFrom(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: Text('Back to Home', style: TextStyle(fontSize: 18)),
+            child: const Text('Go Home', style: TextStyle(fontSize: 16)),
           ),
         ),
       ],
