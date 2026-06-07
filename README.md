@@ -136,6 +136,54 @@ backend/
 
 ---
 
+📋 Prerequisites
+
+Before running the project, ensure the following software is installed:
+
+*Python 3.10+
+*Flutter SDK
+*PostgreSQL
+*Git
+
+---
+
+## ⚙️ Installation
+
+### Clone Repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/AdaptIQ.git
+cd AdaptIQ
+```
+
+### Backend Setup
+
+```bash
+cd backend
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+### Frontend Setup
+
+```bash
+cd frontend
+flutter pub get
+flutter run
+```
+
+### Database
+
+Configure PostgreSQL credentials in Django settings before running migrations.
+
+### Notes
+
+* Backend must be running before starting the Flutter application.
+* For physical device testing, update the API base URL to your machine's local IP address.
+
+---
+
 ## 👨‍💻 Author
 
 **Nirupam Aryal**
