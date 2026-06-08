@@ -50,6 +50,22 @@ The application aims to provide a more personalized and engaging learning experi
 
 ---
 
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Quiz Interface
+![Quiz](screenshots/quiz.png)
+
+### Kid Mode
+![Kid Mode](screenshots/kidquiz.png)
+
+### Monitoring System
+![Monitoring](screenshots/monitoring.png)
+
+---
+
 ## 🏗️ System Architecture
 
 Flutter Mobile App
